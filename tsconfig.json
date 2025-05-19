@@ -1,3 +1,17 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext"],
+    "jsx": "react-native",           // ← JSX için burası çok önemli
+    "allowJs": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "types": ["react", "react-native"]  // ← hangi tip bildirimlerini dahil edeceğimizi söylüyoruz
+  },
+  "include": ["src", "App.tsx", "index.js"]
 }

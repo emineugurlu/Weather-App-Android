@@ -1,7 +1,8 @@
 // App.tsx
 import React from 'react';
-import CurrentWeatherScreen from './src/screens/CurrentWeatherScreen';
+import ForecastScreen from './src/screens/ForecastScreen';
+import { JSX } from 'react/jsx-runtime';
 
-export default function App() {
-  return <CurrentWeatherScreen />;
+export default function App(): JSX.Element {
+  return <ForecastScreen />;
 }
