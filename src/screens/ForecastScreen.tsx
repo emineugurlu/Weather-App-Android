@@ -1,3 +1,4 @@
+// src/screens/ForecastScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,6 +9,8 @@ import {
   Alert,
 } from 'react-native';
 import { fetchForecast } from '../services/weatherApi';
+import { format, parseISO } from 'date-fns';
+import { tr } from 'date-fns/locale';
 
 interface ForecastItem {
   dt_txt: string;
@@ -21,14 +24,14 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
 
   useEffect(() => {
     fetchForecast(city)
-      .then(data => {
-        // Her 8. öğeyi alarak 5 günlük baz tahmin elde ediyoruz
+      .then((data) => {
+        // Her 8. öğeyi alarak 5 günlük tahmin oluşturuyoruz
         const daily = data.list.filter(
           (_: any, i: number) => i % 8 === 0
         ) as ForecastItem[];
         setList(daily.slice(0, 5));
       })
-      .catch(err => Alert.alert('Hata', err.message))
+      .catch((err) => Alert.alert('Hata', err.message))
       .finally(() => setLoading(false));
   }, [city]);
 
@@ -43,13 +46,18 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
   return (
     <FlatList
       data={list}
-      keyExtractor={item => item.dt_txt}
+      keyExtractor={(item) => item.dt_txt}
       contentContainerStyle={styles.container}
       renderItem={({ item }) => {
-        const date = item.dt_txt.split(' ')[0];
+        // "2025-05-19 12:00:00" → Date objesine çevir ve formatla
+        const dateObj = parseISO(item.dt_txt);
+        const formattedDate = format(dateObj, 'EEEE, dd MMMM yyyy', {
+          locale: tr,
+        });
+
         return (
           <View style={styles.card}>
-            <Text style={styles.date}>{date}</Text>
+            <Text style={styles.date}>{formattedDate}</Text>
             <Text style={styles.temp}>
               {Math.round(item.main.temp_min)}°C -{' '}
               {Math.round(item.main.temp_max)}°C
