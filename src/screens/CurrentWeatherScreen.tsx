@@ -16,10 +16,10 @@ import {
   fetchCurrentWeather,
   fetchWeatherByCoords,
 } from '../services/weatherApi';
-import WeatherIcon           from '../components/WeatherIcon';
-import { useLocation }       from '../hooks/useLocation';
-import { useFavorites }      from '../config/favorites';
-import { useTheme }          from '../config/theme';
+import WeatherIcon      from '../components/WeatherIcon';
+import { useLocation }  from '../hooks/useLocation';
+import { useFavorites } from '../config/favorites';
+import { useTheme }     from '../config/theme';
 import { RootStackParamList } from '../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Current'>;
@@ -35,16 +35,19 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
   const coords = useLocation();
   const { favorites, add, remove } = useFavorites();
 
-  const [inputCity, setInputCity]   = useState('Istanbul');
-  const [city, setCity]             = useState('Istanbul');
-  const [weather, setWeather]       = useState<WeatherResponse | null>(null);
-  const [loading, setLoading]       = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [inputCity, setInputCity]     = useState('Istanbul');
+  const [city, setCity]               = useState('Istanbul');
+  const [weather, setWeather]         = useState<WeatherResponse | null>(null);
+  const [loading, setLoading]         = useState(true);
+  const [refreshing, setRefreshing]   = useState(false);
+  const [manualSearch, setManualSearch] = useState(false);
 
   const loadWeather = useCallback(async () => {
     try {
       let data: WeatherResponse;
-      if (coords) {
+      // Eğer kullanıcı manuel arama yaptıysa hep şehirden çek,
+      // yoksa ve coords varsa koordinata göre çekelim:
+      if (coords && !manualSearch) {
         data = await fetchWeatherByCoords(coords.lat, coords.lon);
       } else {
         data = await fetchCurrentWeather(city);
@@ -56,15 +59,18 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [city, coords]);
+  }, [city, coords, manualSearch]);
 
+  // city, coords veya manualSearch değişince yükle
   useEffect(() => {
     setLoading(true);
     loadWeather();
-  }, [city, coords, loadWeather]);
+  }, [city, coords, manualSearch, loadWeather]);
 
   const onRefresh = () => {
     setRefreshing(true);
+    // pull-to-refresh de şehir moduna geçirebiliriz:
+    setManualSearch(true);
     loadWeather();
   };
 
@@ -101,7 +107,10 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
         />
         <Button
           title="Ara"
-          onPress={() => setCity(inputCity.trim())}
+          onPress={() => {
+            setManualSearch(true);          // manuel arama modunu aç
+            setCity(inputCity.trim());      // yeni şehri yükle
+          }}
           color={theme.primary}
         />
       </View>
