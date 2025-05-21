@@ -1,4 +1,3 @@
-// src/screens/ForecastScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -8,8 +7,12 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fetchForecast } from '../services/weatherApi';
 import WeatherIcon from '../components/WeatherIcon';
+import { RootStackParamList } from '../../App';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Forecast'>;
 
 interface ForecastItem {
   dt_txt: string;
@@ -17,16 +20,18 @@ interface ForecastItem {
   weather: { description: string; icon: string }[];
 }
 
-export default function ForecastScreen({ city = 'Istanbul' }) {
+export default function ForecastScreen({ navigation, route }: Props) {
   const [list, setList] = useState<ForecastItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const city = 'Istanbul';
 
   useEffect(() => {
     fetchForecast(city)
       .then(data => {
-        // 8'er saatlik veriden her günün ilk kaydını alıp 5 gün yapıyoruz
-        const daily = data.list.filter((_: any, i: number) => i % 8 === 0) as ForecastItem[];
-        setList(daily.slice(0, 5));
+        const daily = data.list
+          .filter((_: any, i: number) => i % 8 === 0)
+          .slice(0, 5) as ForecastItem[];
+        setList(daily);
       })
       .catch(err => Alert.alert('Hata', err.message))
       .finally(() => setLoading(false));
@@ -46,9 +51,8 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
       keyExtractor={item => item.dt_txt}
       contentContainerStyle={styles.container}
       renderItem={({ item }) => {
-        // ISO string → JS Date objesi
+        // Tarihi yerleşik Intl API ile formatlıyoruz
         const dateObj = new Date(item.dt_txt);
-        // Türkçe tam gün-ayar formatı
         const formattedDate = new Intl.DateTimeFormat('tr-TR', {
           weekday: 'long',
           day: 'numeric',
@@ -59,7 +63,7 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
         return (
           <View style={styles.card}>
             <View style={styles.row}>
-              {/* Küçük ikon */}
+              {/* Küçük emoji/ikon */}
               <WeatherIcon iconCode={item.weather[0].icon} size={60} />
               <View style={styles.texts}>
                 <Text style={styles.date}>{formattedDate}</Text>
