@@ -16,10 +16,10 @@ import {
   fetchCurrentWeather,
   fetchWeatherByCoords,
 } from '../services/weatherApi';
-import WeatherIcon from '../components/WeatherIcon';
-import { useLocation } from '../hooks/useLocation';
-import { useFavorites } from '../config/favorites';
-import { useTheme } from '../config/theme';
+import WeatherIcon           from '../components/WeatherIcon';
+import { useLocation }       from '../hooks/useLocation';
+import { useFavorites }      from '../config/favorites';
+import { useTheme }          from '../config/theme';
 import { RootStackParamList } from '../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Current'>;
@@ -35,10 +35,10 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
   const coords = useLocation();
   const { favorites, add, remove } = useFavorites();
 
-  const [inputCity, setInputCity] = useState('Istanbul');
-  const [city, setCity] = useState('Istanbul');
-  const [weather, setWeather] = useState<WeatherResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [inputCity, setInputCity]   = useState('Istanbul');
+  const [city, setCity]             = useState('Istanbul');
+  const [weather, setWeather]       = useState<WeatherResponse | null>(null);
+  const [loading, setLoading]       = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadWeather = useCallback(async () => {
@@ -150,7 +150,7 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { flexGrow: 1, padding: 16 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center:    { flex: 1, justifyContent: 'center', alignItems: 'center' },
   searchRow: { flexDirection: 'row', marginBottom: 16 },
   input: {
     flex: 1,
@@ -160,17 +160,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
     height: 40,
   },
-  city: { fontSize: 32, fontWeight: 'bold', marginTop: 8, textAlign: 'center' },
-  temp: { fontSize: 48, marginVertical: 10, textAlign: 'center' },
-  desc: { fontSize: 20, fontStyle: 'italic', textAlign: 'center', marginBottom: 16 },
+  city:   { fontSize: 32, fontWeight: 'bold', marginTop: 8, textAlign: 'center' },
+  temp:   { fontSize: 48, marginVertical: 10, textAlign: 'center' },
+  desc:   { fontSize: 20, fontStyle: 'italic', textAlign: 'center', marginBottom: 16 },
   noData: { textAlign: 'center', marginTop: 20 },
-  searchRow: { flexDirection: 'row', marginBottom: 16 },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    marginRight: 8,
-    height: 40,
-  },
 });
