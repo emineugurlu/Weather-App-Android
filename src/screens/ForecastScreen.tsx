@@ -1,17 +1,13 @@
 // src/screens/ForecastScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  Alert,
+  View, Text, FlatList,
+  ActivityIndicator, StyleSheet, Alert
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fetchForecast } from '../services/weatherApi';
 import WeatherIcon from '../components/WeatherIcon';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList } from '../App';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Forecast'>;
 
@@ -21,15 +17,15 @@ interface ForecastItem {
   weather: { description: string; icon: string }[];
 }
 
-export default function ForecastScreen({ navigation }: Props) {
+export default function ForecastScreen({ route }: Props) {
+  const city = route.params.city;  // artık kesin tanımlı
   const [list, setList] = useState<ForecastItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const city = 'Istanbul';
 
   useEffect(() => {
     fetchForecast(city)
       .then(data => {
-        const daily = data.list
+        const daily = (data.list as any[])
           .filter((_: any, i: number) => i % 8 === 0)
           .slice(0, 5) as ForecastItem[];
         setList(daily);
@@ -52,12 +48,10 @@ export default function ForecastScreen({ navigation }: Props) {
       keyExtractor={item => item.dt_txt}
       contentContainerStyle={styles.container}
       renderItem={({ item }) => {
-        const dateObj = new Date(item.dt_txt);
+        const dateObj       = new Date(item.dt_txt);
         const formattedDate = new Intl.DateTimeFormat('tr-TR', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
+          weekday: 'long', day: 'numeric',
+          month: 'long', year: 'numeric',
         }).format(dateObj);
 
         return (
@@ -83,10 +77,8 @@ const styles = StyleSheet.create({
   container: { padding: 16 },
   center:    { flex: 1, justifyContent: 'center', alignItems: 'center' },
   card:      {
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
+    padding: 16, marginBottom: 12,
+    backgroundColor: '#f2f2f2', borderRadius: 8,
     minHeight: 80,
   },
   row:   { flexDirection: 'row', alignItems: 'center' },

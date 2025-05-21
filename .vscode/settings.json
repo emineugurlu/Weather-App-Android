@@ -1,3 +1,18 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+  // Mevcut ayarlarınız:
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "interactive",
+
+  // Aşağıdakiler node_modules içini Java eklentisinden hariç tutar:
+  "java.project.excludes": [
+    "**/node_modules/**"
+  ],
+
+  // VS Code genelinde de node_modules’u gizler:
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  "search.exclude": {
+    "**/node_modules": true
+  }
 }
