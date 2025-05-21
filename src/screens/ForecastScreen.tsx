@@ -9,8 +9,6 @@ import {
   Alert,
 } from 'react-native';
 import { fetchForecast } from '../services/weatherApi';
-import { format, parseISO } from 'date-fns';
-import { tr } from 'date-fns/locale';
 import WeatherIcon from '../components/WeatherIcon';
 
 interface ForecastItem {
@@ -26,6 +24,7 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
   useEffect(() => {
     fetchForecast(city)
       .then(data => {
+        // 8'er saatlik veriden her günün ilk kaydını alıp 5 gün yapıyoruz
         const daily = data.list.filter((_: any, i: number) => i % 8 === 0) as ForecastItem[];
         setList(daily.slice(0, 5));
       })
@@ -47,8 +46,15 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
       keyExtractor={item => item.dt_txt}
       contentContainerStyle={styles.container}
       renderItem={({ item }) => {
-        const dateObj = parseISO(item.dt_txt);
-        const formattedDate = format(dateObj, 'EEEE, dd MMMM yyyy', { locale: tr });
+        // ISO string → JS Date objesi
+        const dateObj = new Date(item.dt_txt);
+        // Türkçe tam gün-ayar formatı
+        const formattedDate = new Intl.DateTimeFormat('tr-TR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(dateObj);
 
         return (
           <View style={styles.card}>
