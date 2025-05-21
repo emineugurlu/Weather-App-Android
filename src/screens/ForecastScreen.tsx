@@ -53,7 +53,7 @@ export default function ForecastScreen({ city = 'Istanbul' }) {
         return (
           <View style={styles.card}>
             <View style={styles.row}>
-              {/* Günlük tahmin ikonu */}
+              {/* Küçük ikon */}
               <WeatherIcon iconCode={item.weather[0].icon} size={60} />
               <View style={styles.texts}>
                 <Text style={styles.date}>{formattedDate}</Text>

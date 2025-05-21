@@ -39,7 +39,7 @@ export default function CurrentWeatherScreen({ city = 'Istanbul' }) {
 
   return (
     <View style={styles.container}>
-      {/* Hava durumu ikonu */}
+      {/* Büyük ikon */}
       <WeatherIcon iconCode={weather.weather[0].icon} size={120} />
       <Text style={styles.city}>{weather.name}</Text>
       <Text style={styles.temp}>{Math.round(weather.main.temp)}°C</Text>
