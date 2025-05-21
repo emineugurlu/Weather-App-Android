@@ -12,11 +12,15 @@ import {
   RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { fetchCurrentWeather, fetchWeatherByCoords } from '../services/weatherApi';
-import WeatherIcon            from '../components/WeatherIcon';
-import { useLocation }        from '../hooks/useLocation';
+import {
+  fetchCurrentWeather,
+  fetchWeatherByCoords,
+} from '../services/weatherApi';
+import WeatherIcon from '../components/WeatherIcon';
+import { useLocation } from '../hooks/useLocation';
+import { useFavorites } from '../config/favorites';
+import { useTheme } from '../config/theme';
 import { RootStackParamList } from '../App';
-import { useTheme }           from '../config/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Current'>;
 
@@ -28,21 +32,21 @@ interface WeatherResponse {
 
 export default function CurrentWeatherScreen({ navigation }: Props) {
   const theme = useTheme();
-  const coords = useLocation(); // <— konum hook’u
-  const [inputCity, setInputCity]   = useState('Istanbul');
-  const [city, setCity]             = useState('Istanbul');
-  const [weather, setWeather]       = useState<WeatherResponse | null>(null);
-  const [loading, setLoading]       = useState(true);
+  const coords = useLocation();
+  const { favorites, add, remove } = useFavorites();
+
+  const [inputCity, setInputCity] = useState('Istanbul');
+  const [city, setCity] = useState('Istanbul');
+  const [weather, setWeather] = useState<WeatherResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadWeather = useCallback(async () => {
     try {
       let data: WeatherResponse;
       if (coords) {
-        // Konum hazırsa koordinata göre çek
         data = await fetchWeatherByCoords(coords.lat, coords.lon);
       } else {
-        // Değilse şehir adına göre çek
         data = await fetchCurrentWeather(city);
       }
       setWeather(data);
@@ -54,7 +58,6 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
     }
   }, [city, coords]);
 
-  // city veya coords değiştiğinde yeniden yükle
   useEffect(() => {
     setLoading(true);
     loadWeather();
@@ -115,6 +118,21 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
           <Text style={[styles.desc, { color: theme.secondaryText }]}>
             {weather.weather[0].description}
           </Text>
+
+          {favorites.includes(weather.name) ? (
+            <Button
+              title="⭐ Favoriden Kaldır"
+              onPress={() => remove(weather.name)}
+              color={theme.primary}
+            />
+          ) : (
+            <Button
+              title="☆ Favori Ekle"
+              onPress={() => add(weather.name)}
+              color={theme.primary}
+            />
+          )}
+
           <Button
             title="5 Günlük Tahmin"
             onPress={() => navigation.navigate('Forecast', { city })}
@@ -131,10 +149,10 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container:   { flexGrow: 1, padding: 16 },
-  center:      { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  searchRow:   { flexDirection: 'row', marginBottom: 16 },
-  input:       {
+  container: { flexGrow: 1, padding: 16 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  searchRow: { flexDirection: 'row', marginBottom: 16 },
+  input: {
     flex: 1,
     borderWidth: 1,
     borderRadius: 4,
@@ -142,8 +160,17 @@ const styles = StyleSheet.create({
     marginRight: 8,
     height: 40,
   },
-  city:        { fontSize: 32, fontWeight: 'bold', marginTop: 8, textAlign: 'center' },
-  temp:        { fontSize: 48, marginVertical: 10, textAlign: 'center' },
-  desc:        { fontSize: 20, fontStyle: 'italic', textAlign: 'center', marginBottom: 16 },
-  noData:      { textAlign: 'center', marginTop: 20 },
+  city: { fontSize: 32, fontWeight: 'bold', marginTop: 8, textAlign: 'center' },
+  temp: { fontSize: 48, marginVertical: 10, textAlign: 'center' },
+  desc: { fontSize: 20, fontStyle: 'italic', textAlign: 'center', marginBottom: 16 },
+  noData: { textAlign: 'center', marginTop: 20 },
+  searchRow: { flexDirection: 'row', marginBottom: 16 },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    marginRight: 8,
+    height: 40,
+  },
 });

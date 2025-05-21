@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "lib": ["esnext"],
-    "jsx": "react-native",           // ← JSX için burası çok önemli
+    "jsx": "react-native",
     "allowJs": true,
     "strict": true,
     "moduleResolution": "node",
@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "noEmit": true,
     "isolatedModules": true,
-    "types": ["react", "react-native"]  // ← hangi tip bildirimlerini dahil edeceğimizi söylüyoruz
+    "types": ["react", "react-native"]
   },
   "include": ["src", "App.tsx", "index.js"]
 }
