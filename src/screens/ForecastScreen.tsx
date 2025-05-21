@@ -1,8 +1,12 @@
-// src/screens/ForecastScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, FlatList,
-  ActivityIndicator, StyleSheet, Alert
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Alert,
+  RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fetchForecast } from '../services/weatherApi';
@@ -18,23 +22,37 @@ interface ForecastItem {
 }
 
 export default function ForecastScreen({ route }: Props) {
-  const city = route.params.city;  // artık kesin tanımlı
+  const city = route.params.city;
   const [list, setList] = useState<ForecastItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchForecast(city)
-      .then(data => {
-        const daily = (data.list as any[])
-          .filter((_: any, i: number) => i % 8 === 0)
-          .slice(0, 5) as ForecastItem[];
-        setList(daily);
-      })
-      .catch(err => Alert.alert('Hata', err.message))
-      .finally(() => setLoading(false));
+  const loadForecast = useCallback(async () => {
+    try {
+      const data = await fetchForecast(city);
+      const daily = (data.list as any[])
+        .filter((_: any, i: number) => i % 8 === 0)
+        .slice(0, 5) as ForecastItem[];
+      setList(daily);
+    } catch (err: any) {
+      Alert.alert('Hata', err.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, [city]);
 
-  if (loading) {
+  useEffect(() => {
+    setLoading(true);
+    loadForecast();
+  }, [city, loadForecast]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadForecast();
+  };
+
+  if (loading && !refreshing) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
@@ -47,11 +65,15 @@ export default function ForecastScreen({ route }: Props) {
       data={list}
       keyExtractor={item => item.dt_txt}
       contentContainerStyle={styles.container}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       renderItem={({ item }) => {
-        const dateObj       = new Date(item.dt_txt);
+        const dateObj = new Date(item.dt_txt);
         const formattedDate = new Intl.DateTimeFormat('tr-TR', {
-          weekday: 'long', day: 'numeric',
-          month: 'long', year: 'numeric',
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         }).format(dateObj);
 
         return (
@@ -77,8 +99,10 @@ const styles = StyleSheet.create({
   container: { padding: 16 },
   center:    { flex: 1, justifyContent: 'center', alignItems: 'center' },
   card:      {
-    padding: 16, marginBottom: 12,
-    backgroundColor: '#f2f2f2', borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 8,
     minHeight: 80,
   },
   row:   { flexDirection: 'row', alignItems: 'center' },

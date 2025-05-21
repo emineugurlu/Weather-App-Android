@@ -1,8 +1,14 @@
-// src/screens/CurrentWeatherScreen.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, ActivityIndicator,
-  StyleSheet, Alert, TextInput, Button
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  Alert,
+  TextInput,
+  Button,
+  ScrollView,
+  RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fetchCurrentWeather } from '../services/weatherApi';
@@ -22,16 +28,31 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
   const [city, setCity] = useState('Istanbul');
   const [weather, setWeather] = useState<WeatherResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadWeather = useCallback(async () => {
+    try {
+      const data = await fetchCurrentWeather(city);
+      setWeather(data);
+    } catch (err: any) {
+      Alert.alert('Hata', err.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [city]);
 
   useEffect(() => {
     setLoading(true);
-    fetchCurrentWeather(city)
-      .then(data => setWeather(data))
-      .catch(err => Alert.alert('Hata', err.message))
-      .finally(() => setLoading(false));
-  }, [city]);
+    loadWeather();
+  }, [city, loadWeather]);
 
-  if (loading) {
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadWeather();
+  };
+
+  if (loading && !refreshing) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
@@ -40,7 +61,12 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <View style={styles.searchRow}>
         <TextInput
           style={styles.input}
@@ -63,22 +89,27 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
           />
         </>
       ) : (
-        <Text>Veri yok</Text>
+        <Text style={styles.noData}>Veri yok</Text>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container:   { flex: 1, padding: 16 },
-  center:      { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  searchRow:   { flexDirection: 'row', marginBottom: 16 },
-  input:       {
-    flex: 1, borderColor: '#ccc', borderWidth: 1,
-    borderRadius: 4, paddingHorizontal: 8,
-    marginRight: 8, height: 40,
+  container: { flexGrow: 1, padding: 16 },
+  center:    { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  searchRow: { flexDirection: 'row', marginBottom: 16 },
+  input: {
+    flex: 1,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    marginRight: 8,
+    height: 40,
   },
-  city:        { fontSize: 32, fontWeight: 'bold', marginTop: 8, textAlign: 'center' },
-  temp:        { fontSize: 48, marginVertical: 10, textAlign: 'center' },
-  desc:        { fontSize: 20, fontStyle: 'italic', textAlign: 'center', marginBottom: 16 },
+  city:    { fontSize: 32, fontWeight: 'bold', marginTop: 8, textAlign: 'center' },
+  temp:    { fontSize: 48, marginVertical: 10, textAlign: 'center' },
+  desc:    { fontSize: 20, fontStyle: 'italic', textAlign: 'center', marginBottom: 16 },
+  noData:  { textAlign: 'center', marginTop: 20 },
 });
