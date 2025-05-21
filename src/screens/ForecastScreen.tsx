@@ -1,3 +1,4 @@
+// src/screens/ForecastScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -20,7 +21,7 @@ interface ForecastItem {
   weather: { description: string; icon: string }[];
 }
 
-export default function ForecastScreen({ navigation, route }: Props) {
+export default function ForecastScreen({ navigation }: Props) {
   const [list, setList] = useState<ForecastItem[]>([]);
   const [loading, setLoading] = useState(true);
   const city = 'Istanbul';
@@ -51,7 +52,6 @@ export default function ForecastScreen({ navigation, route }: Props) {
       keyExtractor={item => item.dt_txt}
       contentContainerStyle={styles.container}
       renderItem={({ item }) => {
-        // Tarihi yerleşik Intl API ile formatlıyoruz
         const dateObj = new Date(item.dt_txt);
         const formattedDate = new Intl.DateTimeFormat('tr-TR', {
           weekday: 'long',
@@ -63,7 +63,6 @@ export default function ForecastScreen({ navigation, route }: Props) {
         return (
           <View style={styles.card}>
             <View style={styles.row}>
-              {/* Küçük emoji/ikon */}
               <WeatherIcon iconCode={item.weather[0].icon} size={60} />
               <View style={styles.texts}>
                 <Text style={styles.date}>{formattedDate}</Text>

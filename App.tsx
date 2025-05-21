@@ -6,7 +6,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CurrentWeatherScreen from './src/screens/CurrentWeatherScreen';
 import ForecastScreen from './src/screens/ForecastScreen';
 
-// Navigator’ın kullanacağı ekran isimleri ve parametre tipleri
 export type RootStackParamList = {
   Current: undefined;
   Forecast: undefined;
