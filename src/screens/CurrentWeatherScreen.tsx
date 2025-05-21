@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { fetchCurrentWeather } from '../services/weatherApi';
+import WeatherIcon from '../components/WeatherIcon';
 
 interface WeatherResponse {
   name: string;
   main: { temp: number };
-  weather: { description: string }[];
+  weather: { description: string; icon: string }[];
 }
 
 export default function CurrentWeatherScreen({ city = 'Istanbul' }) {
@@ -38,6 +39,8 @@ export default function CurrentWeatherScreen({ city = 'Istanbul' }) {
 
   return (
     <View style={styles.container}>
+      {/* Hava durumu ikonu */}
+      <WeatherIcon iconCode={weather.weather[0].icon} size={120} />
       <Text style={styles.city}>{weather.name}</Text>
       <Text style={styles.temp}>{Math.round(weather.main.temp)}°C</Text>
       <Text style={styles.desc}>{weather.weather[0].description}</Text>
@@ -48,7 +51,7 @@ export default function CurrentWeatherScreen({ city = 'Istanbul' }) {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   center:    { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  city:      { fontSize: 32, fontWeight: 'bold' },
+  city:      { fontSize: 32, fontWeight: 'bold', marginTop: 8 },
   temp:      { fontSize: 48, marginVertical: 10 },
   desc:      { fontSize: 20, fontStyle: 'italic' },
 });
