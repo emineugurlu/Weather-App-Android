@@ -12,8 +12,9 @@ import {
   RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { fetchCurrentWeather } from '../services/weatherApi';
+import { fetchCurrentWeather, fetchWeatherByCoords } from '../services/weatherApi';
 import WeatherIcon            from '../components/WeatherIcon';
+import { useLocation }        from '../hooks/useLocation';
 import { RootStackParamList } from '../App';
 import { useTheme }           from '../config/theme';
 
@@ -27,6 +28,7 @@ interface WeatherResponse {
 
 export default function CurrentWeatherScreen({ navigation }: Props) {
   const theme = useTheme();
+  const coords = useLocation(); // <— konum hook’u
   const [inputCity, setInputCity]   = useState('Istanbul');
   const [city, setCity]             = useState('Istanbul');
   const [weather, setWeather]       = useState<WeatherResponse | null>(null);
@@ -35,7 +37,14 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
 
   const loadWeather = useCallback(async () => {
     try {
-      const data = await fetchCurrentWeather(city);
+      let data: WeatherResponse;
+      if (coords) {
+        // Konum hazırsa koordinata göre çek
+        data = await fetchWeatherByCoords(coords.lat, coords.lon);
+      } else {
+        // Değilse şehir adına göre çek
+        data = await fetchCurrentWeather(city);
+      }
       setWeather(data);
     } catch (err: any) {
       Alert.alert('Hata', err.message);
@@ -43,12 +52,13 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [city]);
+  }, [city, coords]);
 
+  // city veya coords değiştiğinde yeniden yükle
   useEffect(() => {
     setLoading(true);
     loadWeather();
-  }, [city, loadWeather]);
+  }, [city, coords, loadWeather]);
 
   const onRefresh = () => {
     setRefreshing(true);
