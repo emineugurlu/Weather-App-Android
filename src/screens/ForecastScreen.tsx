@@ -1,3 +1,4 @@
+// src/screens/ForecastScreen.tsx
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -9,9 +10,10 @@ import {
   RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { fetchForecast } from '../services/weatherApi';
-import WeatherIcon from '../components/WeatherIcon';
-import { RootStackParamList } from '../App';
+import { fetchForecast }        from '../services/weatherApi';
+import WeatherIcon              from '../components/WeatherIcon';
+import { RootStackParamList }   from '../App';
+import { useTheme }             from '../config/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Forecast'>;
 
@@ -22,8 +24,9 @@ interface ForecastItem {
 }
 
 export default function ForecastScreen({ route }: Props) {
+  const theme = useTheme();
   const city = route.params.city;
-  const [list, setList] = useState<ForecastItem[]>([]);
+  const [list, setList]       = useState<ForecastItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -54,14 +57,15 @@ export default function ForecastScreen({ route }: Props) {
 
   if (loading && !refreshing) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
+      <View style={[styles.center, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
 
   return (
     <FlatList
+      style={{ backgroundColor: theme.background }}
       data={list}
       keyExtractor={item => item.dt_txt}
       contentContainerStyle={styles.container}
@@ -77,15 +81,19 @@ export default function ForecastScreen({ route }: Props) {
         }).format(dateObj);
 
         return (
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: theme.cardBackground }]}>
             <View style={styles.row}>
               <WeatherIcon iconCode={item.weather[0].icon} size={60} />
               <View style={styles.texts}>
-                <Text style={styles.date}>{formattedDate}</Text>
-                <Text style={styles.temp}>
+                <Text style={[styles.date, { color: theme.text }]}>
+                  {formattedDate}
+                </Text>
+                <Text style={[styles.temp, { color: theme.text }]}>
                   {Math.round(item.main.temp_min)}°C - {Math.round(item.main.temp_max)}°C
                 </Text>
-                <Text style={styles.desc}>{item.weather[0].description}</Text>
+                <Text style={[styles.desc, { color: theme.secondaryText }]}>
+                  {item.weather[0].description}
+                </Text>
               </View>
             </View>
           </View>
@@ -101,7 +109,6 @@ const styles = StyleSheet.create({
   card:      {
     padding: 16,
     marginBottom: 12,
-    backgroundColor: '#f2f2f2',
     borderRadius: 8,
     minHeight: 80,
   },
