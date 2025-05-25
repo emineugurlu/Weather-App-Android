@@ -1,19 +1,21 @@
-// App.tsx
+// src/App.tsx
 import React from 'react';
 import 'react-native-gesture-handler';
 import { StatusBar, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useTheme, darkTheme } from '../src/config/theme';
 
-import CurrentWeatherScreen from '../src/screens/CurrentWeatherScreen';
-import ForecastScreen       from '../src/screens/ForecastScreen';
-import FavoritesScreen      from '../src/screens/FavoritesScreen';
+import { FavoritesProvider } from './config/favorites';   // ← DOĞRU!
+import { useTheme, darkTheme } from './config/theme';      // ← DOĞRU!
+
+import CurrentWeatherScreen from './screens/CurrentWeatherScreen';  // ← DOĞRU!
+import ForecastScreen       from './screens/ForecastScreen';        // ← DOĞRU!
+import FavoritesScreen      from './screens/FavoritesScreen';       // ← DOĞRU!
 
 export type RootStackParamList = {
   Current:   undefined;
   Forecast:  { city: string };
-  Favorites: undefined;        // ← Burayı ekledik
+  Favorites: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,7 +24,7 @@ export default function App() {
   const theme = useTheme();
 
   return (
-    <>
+    <FavoritesProvider>
       <StatusBar
         barStyle={theme === darkTheme ? 'light-content' : 'dark-content'}
         backgroundColor={theme.background}
@@ -31,7 +33,7 @@ export default function App() {
         <Stack.Navigator
           initialRouteName="Current"
           screenOptions={{
-            headerStyle:    { backgroundColor: theme.primary },
+            headerStyle:     { backgroundColor: theme.primary },
             headerTintColor: '#fff',
           }}
         >
@@ -55,12 +57,12 @@ export default function App() {
             options={{ title: '5 Günlük Tahmin' }}
           />
           <Stack.Screen
-            name="Favorites"                // ← ve burada
+            name="Favorites"
             component={FavoritesScreen}
             options={{ title: 'Favori Şehirler' }}
           />
         </Stack.Navigator>
       </NavigationContainer>
-    </>
+    </FavoritesProvider>
   );
 }
