@@ -12,7 +12,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
 import {
   fetchCurrentWeather,
   fetchWeatherByCoords,
@@ -46,14 +45,11 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
   const loadWeather = useCallback(async () => {
     try {
       let data: WeatherResponse;
-
-      // Eğer kullanıcı manuel arama yapmadıysa ve koordinat geldiyse
       if (coords && !manualSearch) {
         data = await fetchWeatherByCoords(coords.lat, coords.lon);
       } else {
         data = await fetchCurrentWeather(city);
       }
-
       setWeather(data);
     } catch (err: any) {
       Alert.alert('Hata', err.message);
@@ -63,7 +59,6 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
     }
   }, [city, coords, manualSearch]);
 
-  // city veya coords veya manualSearch değişince yeni veriyi yükle
   useEffect(() => {
     setLoading(true);
     loadWeather();
@@ -71,8 +66,16 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
 
   const onRefresh = () => {
     setRefreshing(true);
-    setManualSearch(true);    // pull-to-refresh’i de manuel moda al
+    setManualSearch(true);
     loadWeather();
+  };
+
+  // **Konfor seviyesini hesaplayan fonksiyon**
+  const getComfort = (temp: number) => {
+    if (temp <= 5)   return 'Çok soğuk';
+    if (temp <= 15)  return 'Serin';
+    if (temp <= 25)  return 'Ilık';
+    return 'Sıcak';
   };
 
   if (loading && !refreshing) {
@@ -95,7 +98,6 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
         />
       }
     >
-      {/* Arama satırı */}
       <View style={styles.searchRow}>
         <TextInput
           style={[
@@ -111,13 +113,12 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
           title="Ara"
           color={theme.primary}
           onPress={() => {
-            setManualSearch(true);       // artık manuel moddayız
-            setCity(inputCity.trim());   // buradan sonraki fetchler şehre göre
+            setManualSearch(true);
+            setCity(inputCity.trim());
           }}
         />
       </View>
 
-      {/* Hava verisi */}
       {weather ? (
         <>
           <WeatherIcon iconCode={weather.weather[0].icon} size={120} />
@@ -127,11 +128,12 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
           <Text style={[styles.temp, { color: theme.text }]}>
             {Math.round(weather.main.temp)}°C
           </Text>
+
+          {/* Burada artık 20°C için "Ilık" gösterecek */}
           <Text style={[styles.desc, { color: theme.secondaryText }]}>
-            {weather.weather[0].description}
+            {getComfort(weather.main.temp)}
           </Text>
 
-          {/* Favori ekle/kaldır */}
           {favorites.includes(weather.name) ? (
             <Button
               title="⭐ Favoriden Kaldır"
@@ -146,7 +148,6 @@ export default function CurrentWeatherScreen({ navigation }: Props) {
             />
           )}
 
-          {/* 5 günlük tahmin */}
           <Button
             title="5 Günlük Tahmin"
             onPress={() => navigation.navigate('Forecast', { city })}
