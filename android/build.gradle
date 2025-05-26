@@ -1,28 +1,57 @@
-// android/build.gradle
+// android/app/build.gradle
 
-buildscript {
-    ext {
-        buildToolsVersion   = "35.0.0"
-        minSdkVersion       = 24
-        compileSdkVersion   = 35
-        targetSdkVersion    = 35
-        ndkVersion          = "27.1.12297006"
-        kotlinVersion       = "2.0.21"
+// 1) Uygulama modülünüzü bildiriyorsunuz
+apply plugin: "com.android.application"
+apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.android"
+
+// 2) Hangi ikon fontlarını kopyalayacağımızı söylüyoruz:
+project.ext.vectoricons = [
+    iconFontNames: [
+        "MaterialCommunityIcons.ttf",
+        "Ionicons.ttf",
+        "FontAwesome.ttf",
+        "MaterialIcons.ttf",
+        "SimpleLineIcons.ttf",
+        "Entypo.ttf",
+        // kullanmak istediğiniz diğer ikon fontlarını buraya ekleyin
+    ]
+]
+
+// 3) Ardından fonts.gradle’i çağırıyoruz:
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+// 4) React Native’in standart Gradle betiğini uygula
+project.ext.react = [
+    entryFile: "index.js",
+    enableHermes: true
+]
+apply from: "../../node_modules/react-native/react.gradle"
+
+android {
+    namespace "com.weatherapp"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "com.weatherapp"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
     }
-    repositories {
-        google()
-        mavenCentral()
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
-    dependencies {
-        classpath("com.android.tools.build:gradle:7.4.0")                 // örnek versiyon
-        classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-        google()
-    }
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation "com.facebook.react:react-native:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:${rootProject.ext.kotlinVersion}"
+    // …diğer bağımlılıklar
 }
