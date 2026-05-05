@@ -1,0 +1,17 @@
+name: Mobile-Core Quality Check
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Lint Check
+        run: npx eslint src/**/*.{js,jsx,ts,tsx} --fix-dry-run
