@@ -2,7 +2,7 @@
 
 > **"A high-performance mobile application foundation built with React Native, leveraging native modules, Metro bundling, and Fast Refresh cycles for a seamless dual-OS experience."**
 
-![Repo Size](https://img.shields.io/github/(https://github.com/emineugurlu/Weather-App-Android)color=blueviolet&style=flat-square)
+![Repo Size](https://img.shields.io/github/repo-size/emineugurlu/Weather-App-Android?color=blueviolet&style=flat-square)
 ![Framework](https://img.shields.io/badge/Framework-React--Native-61dafb?style=flat-square&logo=react)
 ![Platform](https://img.shields.io/badge/Platform-Android--iOS-success?style=flat-square)
 
